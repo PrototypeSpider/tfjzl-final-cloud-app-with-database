@@ -50,7 +50,37 @@
                     </div>
                 {% endfor %}
             </div>
-            <!-- Course detail template changes go here -->
+            {% if questions and is_enrolled %}
+                <h3 class="mt-4">Mock exam</h3>
+                <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
+                    {% csrf_token %}
+                    {% for question in questions %}
+                        <fieldset class="card mt-3">
+                            <div class="card-header">{{ forloop.counter }}. {{ question.content }}</div>
+                            <div class="card-body">
+                                {% for choice in question.choice_set.all %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="choice_{{ question.id }}" id="choice_{{ choice.id }}"
+                                               value="{{ choice.id }}">
+                                        <label class="form-check-label" for="choice_{{ choice.id }}">
+                                            {{ choice.content }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                    {% endfor %}
+                    <button class="btn btn-primary mt-3" type="submit">Submit exam</button>
+                </form>
+            {% elif questions %}
+                <p class="mt-4">Enroll in this course to take the mock exam.</p>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-primary" href="{% url 'onlinecourse:enroll' course.id %}">Enroll</a>
+                {% else %}
+                    <a class="btn btn-primary" href="{% url 'onlinecourse:login' %}">Log in to enroll</a>
+                {% endif %}
+            {% endif %}
     </div>
 </body>
 </html>

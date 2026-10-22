@@ -36,20 +36,42 @@
 </nav>
 
 <div class="container-fluid">
+    <h2 class="mt-4">{{ course.name }} mock exam</h2>
     {% if grade > 80 %}
-    <div class="alert alert-success">
-       <!--HINT Display passed info -->
-    </div>
-        {% else %}
+        <div class="alert alert-success">
+            <h4>Congratulations!</h4>
+            <p>You passed the exam with a score of {{ grade }}% ({{ correct_count }} of {{ question_count }} correct).</p>
+        </div>
+    {% else %}
         <div class="alert alert-danger">
-            <!--HINT Display failed info -->
+            <h4>Keep practicing</h4>
+            <p>Your score is {{ grade }}% ({{ correct_count }} of {{ question_count }} correct).</p>
         </div>
-        <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
-        {% endif %}
-        <div class="card-columns-vertical mt-1">
-        <h5 class="">Exam results</h5>
-            <!--HINT Display exam results-->
-        </div>
+    {% endif %}
+    <div class="mt-3">
+        <h5>Exam results</h5>
+        {% for result in results %}
+            <div class="card mt-2">
+                <div class="card-header">
+                    {{ forloop.counter }}. {{ result.question.content }}
+                    {% if result.is_correct %}<span class="text-success">Correct</span>
+                    {% else %}<span class="text-danger">Incorrect</span>{% endif %}
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for choice in result.choices %}
+                        <li class="list-group-item {% if choice.is_correct %}text-success{% elif choice in result.selected_choices %}text-danger{% endif %}">
+                            {{ choice.content }}
+                            {% if choice.is_correct %}<strong> — Correct answer</strong>{% endif %}
+                            {% if choice in result.selected_choices %}<span> — Your answer</span>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            <p>No questions have been added to this course yet.</p>
+        {% endfor %}
+    </div>
+    <a class="btn btn-primary mt-3" href="{% url 'onlinecourse:course_details' course.id %}">Try again</a>
     </div>
 </body>
 </html>
